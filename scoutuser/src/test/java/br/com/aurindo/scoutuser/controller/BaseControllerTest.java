@@ -1,7 +1,6 @@
 package br.com.aurindo.scoutuser.controller;
 
 import br.com.aurindo.scoutuser.repository.LastSearchRepository;
-import br.com.aurindo.scoutuser.utlis.RedisCleaner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
