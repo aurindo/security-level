@@ -1,5 +1,7 @@
 package br.com.aurindo.scoutuser.controller;
 
+import br.com.aurindo.scoutuser.repository.LastSearchRepository;
+import br.com.aurindo.scoutuser.utlis.RedisCleaner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -19,6 +21,9 @@ public class BaseControllerTest {
     @Autowired
     private TestRestTemplate restTemplate;
 
+    @Autowired
+    private LastSearchRepository lastSearchRepository;
+
     private HttpHeaders headers;
 
     private final String BASE_URL = "http://localhost:";
@@ -31,6 +36,10 @@ public class BaseControllerTest {
         headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return headers;
+    }
+
+    protected void cleanRedis() {
+        lastSearchRepository.deleteAll();
     }
 
     protected HttpHeaders getHeaders() {
