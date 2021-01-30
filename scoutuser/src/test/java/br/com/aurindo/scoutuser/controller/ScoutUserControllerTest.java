@@ -23,6 +23,26 @@ public class ScoutUserControllerTest extends BaseControllerTest {
     public void initEachTest() throws MalformedURLException {
         mountHeaders();
         url = mountUrl(URL_BASE_USER);
+        cleanRedis();
+    }
+
+    @Test
+    public void whenRequestByCPFAndUserExists() throws Exception {
+        JSONObject searchJO = createSearchObject();
+        HttpEntity<String> request = new HttpEntity<>(searchJO.toString(), getHeaders());
+        ResponseEntity<String> responsePost = getRestTemplate()
+                .exchange(url, HttpMethod.POST, request, String.class);
+
+        request = new HttpEntity<>(getHeaders());
+        url += "/" + searchJO.getString("cpf");
+        ResponseEntity<String> responseGet = getRestTemplate()
+                .exchange(url, HttpMethod.GET, request, String.class);
+
+        assertEquals(HttpStatus.OK, responseGet.getStatusCode());
+        String expectedBody = "{\"cpf\":\"123456789\"," +
+                "\"lastCheck\":\"2020-05-02T03:01:00.000Z\"," +
+                "\"eventType\":\"Pagamento\",\"lastCredCardUse\":\"99.23\"}";
+        assertEquals(expectedBody, responsePost.getBody());
     }
 
     @Test
@@ -42,21 +62,48 @@ public class ScoutUserControllerTest extends BaseControllerTest {
     public void whenAddNewSearchFirstTime() throws Exception {
         JSONObject searchJO = createSearchObject();
         HttpEntity<String> request = new HttpEntity<>(searchJO.toString(), getHeaders());
-        ResponseEntity<String> responseGet = getRestTemplate()
+        ResponseEntity<String> responsePost = getRestTemplate()
                 .exchange(url, HttpMethod.POST, request, String.class);
 
-        assertEquals(HttpStatus.CREATED, responseGet.getStatusCode());
+        assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
 
         List<String> locations = new ArrayList<>();
         locations.add(url + "123456789");
         assertEquals(
                 locations,
-                responseGet.getHeaders().get("location"));
+                responsePost.getHeaders().get("location"));
 
         String expectedBody = "{\"cpf\":\"123456789\"," +
                 "\"lastCheck\":\"2020-05-02T03:01:00.000Z\"," +
                 "\"eventType\":\"Pagamento\",\"lastCredCardUse\":\"99.23\"}";
-        assertEquals(expectedBody, responseGet.getBody());
+        assertEquals(expectedBody, responsePost.getBody());
+    }
+
+    @Test
+    public void whenUpdateSearchShouldUpdateValues() throws Exception {
+        JSONObject searchJO = createSearchObject();
+        HttpEntity<String> request = new HttpEntity<>(searchJO.toString(), getHeaders());
+        ResponseEntity<String> responsePost = getRestTemplate()
+                .exchange(url, HttpMethod.POST, request, String.class);
+
+        searchJO.put("lastCheck", "2020-05-03T03:01:00.000Z");
+        searchJO.put("lastCredCardUse", "100.00");
+        request = new HttpEntity<>(searchJO.toString(), getHeaders());
+        responsePost = getRestTemplate()
+                .exchange(url, HttpMethod.POST, request, String.class);
+
+        assertEquals(HttpStatus.CREATED, responsePost.getStatusCode());
+
+        List<String> locations = new ArrayList<>();
+        locations.add(url + "123456789");
+        assertEquals(
+                locations,
+                responsePost.getHeaders().get("location"));
+
+        String expectedBody = "{\"cpf\":\"123456789\"," +
+                "\"lastCheck\":\"2020-05-03T03:01:00.000Z\"," +
+                "\"eventType\":\"Pagamento\",\"lastCredCardUse\":\"100.00\"}";
+        assertEquals(expectedBody, responsePost.getBody());
     }
 
     private JSONObject createSearchObject() throws JSONException {
