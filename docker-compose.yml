@@ -1,0 +1,24 @@
+version: '3.3'
+
+services:
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'user_private'
+      MYSQL_USER: 'my_user'
+      MYSQL_PASSWORD: 'my_user'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - 3306:3306
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017

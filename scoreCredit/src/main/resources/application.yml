@@ -1,0 +1,16 @@
+server:
+  port: 8082
+  servlet:
+    contextPath: /score-credit
+spring:
+  devtools:
+    restart:
+      exclude: logs/**
+      additional-exclude: logs/**
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: test
+      password: rootpassword
+      username: root
